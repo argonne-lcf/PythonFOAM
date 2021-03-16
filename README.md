@@ -1,4 +1,5 @@
-# PythonFOAM: In-situ data analyses with OpenFOAM and Python
+# PythonFOAM: 
+# In-situ data analyses with OpenFOAM and Python
 
 Using Python modules for in-situ data analytics with OpenFOAM 8. **NOTE** that this is _NOT_ PyFOAM which is an automation tool for running OpenFOAM cases. What you see in this repository, is _OpenFOAM calling Python functions and classes_ for in-situ data analytics. You may offload some portion of your compute task to Python for a variety of reasons (chiefly data-driven tasks using the Python ML ecosystem and quick prototyping of algorithms).
 
