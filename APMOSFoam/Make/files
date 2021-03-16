@@ -1,0 +1,3 @@
+APMOSFoam.C
+
+EXE = $(FOAM_APPBIN)/APMOSFoam
