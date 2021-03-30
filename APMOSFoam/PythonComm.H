@@ -7,9 +7,9 @@ if (runTime.outputTime())
 
     // Call python function
     clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
-    
+
     pValue = (PyArrayObject*)PyObject_CallObject(apmos_func, apmos_args); //Calling APMOS function
-    
+
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("APMOS Computation wall time: %.2f ms\n", posix_wall);
@@ -76,11 +76,11 @@ else
     npy_intp dim[] = {num_cells, 3};
     // create a new array using 'buffer'
     array_2d = PyArray_SimpleNewFromData(2, dim, NPY_DOUBLE, &input_vals[0]);
-    
+
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("Numpy array cast time: %.2f ms\n", posix_wall);
-    
+
     PyTuple_SetItem(snapshot_args, 0, array_2d);
     // To pass rank to Python interpreter
     rank_val = PyLong_FromLong(rank);

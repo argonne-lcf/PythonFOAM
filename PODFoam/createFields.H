@@ -59,7 +59,7 @@ PyRun_SimpleString("import sys");
 PyRun_SimpleString("sys.path.append(\".\")");
 
 // initialize numpy array library
-import_array1(-1); 
+import_array1(-1);
 
 PyObject *pName = PyUnicode_DecodeFSDefault("python_module"); // Python filename
 PyObject *pModule = PyImport_Import(pName);

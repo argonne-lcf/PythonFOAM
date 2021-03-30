@@ -158,16 +158,16 @@ int main(int argc, char *argv[])
 
         // Talk to Python
         #include "PythonComm.H"
-        
+
         // Info<< "Python Elapsed ExecutionTime = " << runTime.elapsedCpuTime() << " s"
         //     << "Python Elapsed ClockTime = " << runTime.elapsedClockTime() << " s"
         //     << nl << endl;
 
         // Perform IO
         clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
-        
+
         runTime.write();
-        
+
         clock_gettime(CLOCK_MONOTONIC, &tw2); //POSIX
         posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
         printf("IO wall time: %.2f ms\n", posix_wall);
