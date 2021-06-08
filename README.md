@@ -22,6 +22,9 @@ within `EXE_INC` and
 ```
 within `EXE_LIBS`. **Replace these with the include/lib paths to your personal Python environments.** The Python module within `Run_Case/` directories require the use of `numpy`, `matplotlib`, and `tensorflow` so ensure that your environment has these installed. The best way to obtain these is to `pip install tensorflow==2.1` which will automatically find the right numpy dependency and then `pip install matplotlib` to obtain plot capability. You will also need to install `mpi4py` which you can using `pip install mpi4py`.
 
+## Update
+A Docker container with the contents of this repo is available [here](https://hub.docker.com/repository/docker/romitmaulik1/pythonfoam_docker). You can use `docker pull romitmaulik1/pythonfoam_docker:reproduced` on a machine with docker in it, or `singularity build pythonfoam.img docker://romitmaulik1/pythonfoam_docker:reproduced`. Do not forget to ensure OpenFOAM is sourced and available in your path by using `source /opt/openfoam8/etc/bashrc`. For a quick crash course on using Docker, see this tutorial by [Jean Rabault](https://github.com/jerabaul29/Cylinder2DFlowControlDRLParallel/blob/master/Docker/README_container.md). Singularity resources may be found [here](https://github.com/argonne-lcf/CompPerfWorkshop-2021/blob/main/03_containers/ALCF_Containers.pdf).
+
 Points of contact for further assistance - Romit Maulik (rmaulik@anl.gov). This work was performed by using the resources of the Argonne Leadership Computing Facility, a U.S. Department of Energy (Office of Science) user facility at Argonne National Laboratory, Lemont, IL, USA. 
 
 ## LICENSE
