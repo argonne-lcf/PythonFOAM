@@ -1,4 +1,4 @@
-# f = open('python_log_file','w')
+# f = open('log.python_module','w')
 # f.write('Starting python module from OpenFOAM')
 # f.close()
 
@@ -50,7 +50,7 @@ class autoencoder_model(object):
 
         print('Total size of training data:',A.shape)
         num_snapshots, num_points, num_fields = A.shape
-        
+
         A = A.reshape(num_snapshots,-1)
 
         # Encoder
@@ -61,7 +61,7 @@ class autoencoder_model(object):
         x = Dense(10, activation=my_swish)(x)
         encoded = Dense(self.num_latent)(x)
         self.encoder = Model(inputs=encoder_inputs,outputs=encoded)
-            
+
         ## Decoder
         decoder_inputs = Input(shape=(self.num_latent,),name='decoded')
         x = Dense(10,activation=my_swish)(decoder_inputs)
@@ -73,7 +73,7 @@ class autoencoder_model(object):
 
         ## Autoencoder
         ae_outputs = self.decoder(self.encoder(encoder_inputs))
-        
+
         self.model = Model(inputs=encoder_inputs,outputs=ae_outputs,name='Autoencoder')
 
         weights_filepath = 'weights_rank_'+str(rank)+'_time_'+str(model_num)+'.h5'
@@ -85,7 +85,7 @@ class autoencoder_model(object):
         callbacks_list = [checkpoint,earlystopping]
 
         # Compile network
-        self.model.compile(optimizer=my_adam,loss='mean_squared_error')    
+        self.model.compile(optimizer=my_adam,loss='mean_squared_error')
         self.model.summary()
 
         # Train model
@@ -94,9 +94,9 @@ class autoencoder_model(object):
         np.random.shuffle(idx)
         A = A[idx]
 
-        train_history = self.model.fit(x=A, 
-                              y=A, 
-                              epochs=self.num_epochs, batch_size=self.batch_size, 
+        train_history = self.model.fit(x=A,
+                              y=A,
+                              epochs=self.num_epochs, batch_size=self.batch_size,
                               callbacks=callbacks_list, validation_split=0.1)
 
         model_num+=1
@@ -121,9 +121,9 @@ class autoencoder_model(object):
 
         return decoded.reshape(num_points,num_fields).astype('float64')
 
-        
 
-    
+
+
 autoencoder_class_object = autoencoder_model(num_latent=4)
 
 def snapshot_func(array,rank):
@@ -136,7 +136,7 @@ def snapshot_func(array,rank):
         iter+=1
     else:
         print('Collecting snapshots iteration: ',iter)
-        
+
         array = np.expand_dims(array,axis=0)
         snapshots = np.concatenate((snapshots,array),axis=0)
         iter+=1
@@ -163,7 +163,7 @@ def encode_func(array,rank):
 
     return decoded
 
-    
+
 
 if __name__ == '__main__':
     print('This is the Python module for AutoencoderFoam')

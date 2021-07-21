@@ -67,9 +67,16 @@ volVectorField U
 
 singlePhaseTransportModel laminarTransport(U, phi);
 
+#ifdef OPENFOAM
+autoPtr<incompressible::turbulenceModel> turbulence
+(
+    incompressible::turbulenceModel::New(U, phi, laminarTransport)
+);
+#else
 autoPtr<incompressible::momentumTransportModel> turbulence
 (
     incompressible::momentumTransportModel::New(U, phi, laminarTransport)
 );
+#endif
 
 #include "createFvOptions.H"

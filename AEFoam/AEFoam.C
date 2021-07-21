@@ -34,10 +34,16 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
+// Use great instead of GREAT etc
+#define COMPAT_OPENFOAM_ORG
 #include "fvCFD.H"
 #include "dynamicFvMesh.H"
 #include "singlePhaseTransportModel.H"
-#include "kinematicMomentumTransportModel.H"
+#ifdef OPENFOAM
+    #include "turbulentTransportModel.H"
+#else
+    #include "kinematicMomentumTransportModel.H"
+#endif
 #include "pimpleControl.H"
 #include "CorrectPhi.H"
 #include "fvOptions.H"
@@ -45,7 +51,7 @@ Description
 #include "fvcSmooth.H"
 
 // Some time related libraries
-#include <time.h>
+#include <ctime>
 
 /*The following stuff is for Python interoperability*/
 #include <Python.h>
@@ -57,7 +63,6 @@ Description
 
 int main(int argc, char *argv[])
 {
-
     // Some time related variables
     struct timespec tw1, tw2;
     double posix_wall;
@@ -71,6 +76,8 @@ int main(int argc, char *argv[])
     #include "createFields.H"
     #include "createUfIfPresent.H"
 
+    #include "PythonCreate.H"
+
     turbulence->validate();
 
     if (!LTS)
@@ -83,7 +90,11 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
+    #if OPENFOAM
+    while (runTime.run())
+    #else
     while (pimple.run(runTime))
+    #endif
     {
         #include "readDyMControls.H"
 
@@ -105,7 +116,14 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            if (pimple.firstPimpleIter() || moveMeshOuterCorrectors)
+            if
+            (
+                #if OPENFOAM
+                (pimple.firstIter() || moveMeshOuterCorrectors)
+                #else
+                (pimple.firstPimpleIter() || moveMeshOuterCorrectors)
+                #endif
+            )
             {
                 mesh.update();
 
@@ -145,7 +163,6 @@ int main(int argc, char *argv[])
                 laminarTransport.correct();
                 turbulence->correct();
             }
-
         }
 
         clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
@@ -158,16 +175,16 @@ int main(int argc, char *argv[])
 
         // Talk to Python
         #include "PythonComm.H"
-        
+
         // Info<< "Python Elapsed ExecutionTime = " << runTime.elapsedCpuTime() << " s"
         //     << "Python Elapsed ClockTime = " << runTime.elapsedClockTime() << " s"
         //     << nl << endl;
 
         // Perform IO
         clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
-        
+
         runTime.write();
-        
+
         clock_gettime(CLOCK_MONOTONIC, &tw2); //POSIX
         posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
         printf("IO wall time: %.2f ms\n", posix_wall);
@@ -175,7 +192,6 @@ int main(int argc, char *argv[])
         // Info<< "IO Elapsed ExecutionTime = " << runTime.elapsedCpuTime() << " s"
         //     << "IO Elapsed ClockTime = " << runTime.elapsedClockTime() << " s"
         //     << nl << endl;
-
     }
 
     Info<< "End\n" << endl;

@@ -1,3 +1,8 @@
+# OpenFOAM Build directories - anywhere
+linux*Clang*/
+linux*Gcc*/
+linux*Icc*/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
