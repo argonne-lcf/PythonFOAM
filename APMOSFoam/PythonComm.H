@@ -1,14 +1,20 @@
-/* Send/Receive data with Python*/
+// Copyright (C) 2021 UChicago Argonne, LLC
+// SPDX-License-Identifier: (other)
+//
+// Python-OpenFOAM integration
+//
+// Send/Receive data with Python
+
 if (runTime.outputTime())
 {
-    // To pass rank to Python interpreter
-    rank_val = PyLong_FromLong(rank);
-    PyTuple_SetItem(apmos_args, 0, rank_val);
-
-    // Call python function
     clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
-    pValue = (PyArrayObject*)PyObject_CallObject(apmos_func, apmos_args); //Calling APMOS function
+    // Call APMOS function
+    PyTuple_SetItem(apmos_args, 0, rank_val);
+    PyArrayObject *pValue = reinterpret_cast<PyArrayObject*>
+    (
+        PyObject_CallObject(apmos_func, apmos_args)
+    );
 
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
@@ -20,10 +26,9 @@ if (runTime.outputTime())
     // ndarray return of POD modes
     // double* c_out = static_cast<double*>(PyArray_DATA(pValue));
 
-    int shift = truncation*num_cells;
+    ///int shift = truncation*num_cells;
     for (int mode = 0; mode < truncation; ++mode)
     {
-
         // Overwrite data
         forAll(upod_.internalField(), id) // for boundary field use u_.boundaryField()
         {
@@ -81,17 +86,15 @@ else
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("Numpy array cast time: %.2f ms\n", posix_wall);
 
-    PyTuple_SetItem(snapshot_args, 0, array_2d);
-    // To pass rank to Python interpreter
-    rank_val = PyLong_FromLong(rank);
-    PyTuple_SetItem(snapshot_args, 1, rank_val);
-
-    // Call python function
     clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
-    pValue = (PyArrayObject*)PyObject_CallObject(snapshot_func, snapshot_args); //Casting to PyArrayObject
+    PyTuple_SetItem(snapshot_args, 0, array_2d);
+    PyTuple_SetItem(snapshot_args, 1, rank_val);
+    (void) PyObject_CallObject(snapshot_func, snapshot_args);
 
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("Snapshot collection wall time: %.2f ms\n", posix_wall);
 }
+
+// ************************************************************************* //

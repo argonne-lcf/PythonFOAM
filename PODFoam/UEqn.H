@@ -6,7 +6,11 @@ tmp<fvVectorMatrix> tUEqn
 (
     fvm::ddt(U) + fvm::div(phi, U)
   + MRF.DDt(U)
+#if OPENFOAM
+  + turbulence->divDevReff(U)
+#else
   + turbulence->divDevSigma(U)
+#endif
  ==
     fvOptions(U)
 );

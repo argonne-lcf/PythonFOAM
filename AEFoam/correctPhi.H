@@ -5,8 +5,10 @@ CorrectPhi
     p,
     dimensionedScalar("rAUf", dimTime, 1),
     geometricZeroField(),
-    pimple,
-    true
+    pimple
+    #ifndef OPENFOAM
+    , true
+    #endif
 );
 
 #include "continuityErrs.H"

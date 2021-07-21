@@ -26,7 +26,11 @@ if (pimple.consistent())
     HbyA -= (rAU - rAtU())*fvc::grad(p);
 }
 
+#if OPENFOAM
+if (pimple.nCorrPISO() <= 1)
+#else
 if (pimple.nCorrPiso() <= 1)
+#endif
 {
     tUEqn.clear();
 }

@@ -1,4 +1,10 @@
-/* Trigger an autoencoder training using tensorflow in autoencoder_func*/
+// Copyright (C) 2021 UChicago Argonne, LLC
+// SPDX-License-Identifier: (other)
+//
+// Python-OpenFOAM integration
+//
+// Trigger an autoencoder training using tensorflow in autoencoder_func
+
 if (runTime.outputTime())
 {
     if (encode_mode == 1)
@@ -16,22 +22,18 @@ if (runTime.outputTime())
     }
     else
     {
-        // To pass rank to Python interpreter
-        rank_val = PyLong_FromLong(rank);
-        PyTuple_SetItem(autoencoder_args, 0, rank_val);
-
-        // Call python function
         clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
-        
-        pValue = (PyArrayObject*)PyObject_CallObject(autoencoder_func, autoencoder_args); //Calling Autoencoder training function
-        
+
+        // Call autoencoder
+        PyTuple_SetItem(autoencoder_args, 0, rank_val);
+        (void) PyObject_CallObject(autoencoder_func, autoencoder_args);
+
         clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
         posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
-        printf("Autoencoder training wall time: %.2f ms\n", posix_wall);        
+        printf("Autoencoder training wall time: %.2f ms\n", posix_wall);
 
         encode_mode = 1;
     }
-
 }
 else
 {
@@ -47,22 +49,22 @@ else
     npy_intp dim[] = {num_cells, 1};
     // create a new array using 'buffer'
     array_2d = PyArray_SimpleNewFromData(2, dim, NPY_DOUBLE, &input_vals[0]);
-    
+
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("Numpy array cast time: %.2f ms\n", posix_wall);
-    
+
     if (encode_mode == 1)
     {
-        PyTuple_SetItem(encode_args, 0, array_2d);
-        // To pass rank to Python interpreter
-        rank_val = PyLong_FromLong(rank);
-        PyTuple_SetItem(encode_args, 1, rank_val);
-
-        // Call python function
         clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
-        pValue = (PyArrayObject*)PyObject_CallObject(encode_func, encode_args); //Casting to PyArrayObject
+        // Call encode
+        PyTuple_SetItem(encode_args, 0, array_2d);
+        PyTuple_SetItem(encode_args, 1, rank_val);
+        PyArrayObject *pValue = reinterpret_cast<PyArrayObject*>
+        (
+            PyObject_CallObject(encode_func, encode_args)
+        );
 
         clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
         posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
@@ -75,20 +77,18 @@ else
         }
     }
     else
-    {      
-        PyTuple_SetItem(snapshot_args, 0, array_2d);
-        // To pass rank to Python interpreter
-        rank_val = PyLong_FromLong(rank);
-        PyTuple_SetItem(snapshot_args, 1, rank_val);
-
-        // Call python function
+    {
         clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
-        pValue = (PyArrayObject*)PyObject_CallObject(snapshot_func, snapshot_args); //Casting to PyArrayObject
+        // Call snapshot
+        PyTuple_SetItem(snapshot_args, 0, array_2d);
+        PyTuple_SetItem(snapshot_args, 1, rank_val);
+        (void) PyObject_CallObject(snapshot_func, snapshot_args);
 
         clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
         posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
         printf("Snapshot collection wall time: %.2f ms\n", posix_wall);
-
     }
 }
+
+// ************************************************************************* //

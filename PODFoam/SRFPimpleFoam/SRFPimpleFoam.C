@@ -34,7 +34,11 @@ Description
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
+#ifdef OPENFOAM
+#include "turbulentTransportModel.H"
+#else
 #include "kinematicMomentumTransportModel.H"
+#endif
 #include "pimpleControl.H"
 #include "SRFModel.H"
 #include "fvOptions.H"

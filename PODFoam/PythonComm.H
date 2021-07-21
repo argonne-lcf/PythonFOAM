@@ -1,14 +1,20 @@
-/* Send/Receive data with Python*/
+// Copyright (C) 2021 UChicago Argonne, LLC
+// SPDX-License-Identifier: (other)
+//
+// Python-OpenFOAM integration
+//
+// Send/Receive data with Python
+
 if (runTime.outputTime())
 {
-    // To pass rank to Python interpreter
-    rank_val = PyLong_FromLong(rank);
-    PyTuple_SetItem(svd_args, 0, rank_val);
-
-    // Call python function
     clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
-    pValue = (PyArrayObject*)PyObject_CallObject(svd_func, svd_args); //Calling SVD function
+    // SVD function
+    PyTuple_SetItem(svd_args, 0, rank_val);
+    PyArrayObject *pValue = reinterpret_cast<PyArrayObject*>
+    (
+        PyObject_CallObject(svd_func, svd_args)
+    );
 
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
@@ -18,17 +24,16 @@ if (runTime.outputTime())
     clock_gettime(CLOCK_MONOTONIC, &tw1); // C11; use clock_gettime in POSIX
 
     // Shove return value into OF data structure
-    volScalarField upod_ = U.component(vector::X);
-    volScalarField vpod_ = U.component(vector::Y);
-    volScalarField wpod_ = U.component(vector::Z);
+    volScalarField upod_(U.component(vector::X));
+    volScalarField vpod_(U.component(vector::Y));
+    volScalarField wpod_(U.component(vector::Z));
 
     // ndarray return of POD modes
     // double* c_out = static_cast<double*>(PyArray_DATA(pValue));
 
-    int shift = truncation*num_cells;
+    ///int shift = truncation*num_cells;
     for (int mode = 0; mode < truncation; ++mode)
     {
-
         // Overwrite data
         forAll(upod_.internalField(), id) // for boundary field use u_.boundaryField()
         {
@@ -54,7 +59,6 @@ if (runTime.outputTime())
         sprintf(var_name, "wpod_%d", mode);
         wpod_.rename(&var_name[0]);
         wpod_.write();
-
     }
 
     // std::cout <<"Data back in OpenFOAM. Now writing." << std::endl;
@@ -64,7 +68,6 @@ if (runTime.outputTime())
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("Data copy back to OF wall time: %.2f ms\n", posix_wall);
-
 }
 else
 {
@@ -87,17 +90,15 @@ else
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("Numpy array cast time: %.2f ms\n", posix_wall);
 
-    PyTuple_SetItem(snapshot_args, 0, array_2d);
-    // To pass rank to Python interpreter
-    rank_val = PyLong_FromLong(rank);
-    PyTuple_SetItem(snapshot_args, 1, rank_val);
-
-    // Call python function
     clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
-    pValue = (PyArrayObject*)PyObject_CallObject(snapshot_func, snapshot_args); //Casting to PyArrayObject
+    PyTuple_SetItem(snapshot_args, 0, array_2d);
+    PyTuple_SetItem(snapshot_args, 1, rank_val);
+    (void) PyObject_CallObject(snapshot_func, snapshot_args);
 
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
     printf("Snapshot collection wall time: %.2f ms\n", posix_wall);
 }
+
+// ************************************************************************* //
