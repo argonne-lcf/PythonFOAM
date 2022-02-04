@@ -56,19 +56,33 @@ Description
 /*The following stuff is for Python interoperability*/
 #include <Python.h>
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#define PY_ARRAY_UNIQUE_SYMBOL POD_ARRAY_API
 #include <numpy/arrayobject.h>
+
+void init_numpy() {
+  import_array1();
+}
 /*Done importing Python functionality*/
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
+
+
+    // create argument list
+    Foam::argList args(argc, argv, true,true,/*initialise=*/false);
+    if (!args.checkRootCase())
+    {
+        Foam::FatalError.exit();
+    }
+
     // Some time related variables
     struct timespec tw1, tw2;
     double posix_wall;
 
     #include "postProcess.H"
-    #include "setRootCaseLists.H"
+    // #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createDynamicFvMesh.H"
     #include "initContinuityErrs.H"
