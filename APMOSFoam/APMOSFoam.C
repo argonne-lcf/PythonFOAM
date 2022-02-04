@@ -63,12 +63,21 @@ Description
 
 int main(int argc, char *argv[])
 {
+
+
+    // create argument list
+    Foam::argList args(argc, argv, true,true,/*initialise=*/false);
+    if (!args.checkRootCase())
+    {
+        Foam::FatalError.exit();
+    }
+
     // Some time related variables
     struct timespec tw1, tw2;
     double posix_wall;
 
     #include "postProcess.H"
-    #include "setRootCaseLists.H"
+    // #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createDynamicFvMesh.H"
     #include "initContinuityErrs.H"
