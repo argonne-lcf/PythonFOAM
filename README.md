@@ -1,9 +1,6 @@
 # PythonFOAM:
 ## In-situ data analyses with OpenFOAM and Python
 
-## Update - 02/04/2022
-We have changed instructions to compile and run our examples by automating some of the environment variable declarations. We have also added an example of calling Python from a turbulence model implementation. 
-
 Using Python modules for in-situ data analytics with [OpenFOAM](https://www.openfoam.com).
 **NOTE** that this is _NOT_ PyFOAM which is an automation tool for running OpenFOAM cases. What you see in this repository, is _OpenFOAM calling Python functions and classes_ for in-situ data analytics. You may offload some portion of your compute task to Python for a variety of reasons (chiefly data-driven tasks using the Python ML ecosystem and quick prototyping of algorithms).
 
@@ -18,6 +15,10 @@ OpenFOAM versions that should compile without changes:
 - numpy (python) with devel headers
 - tensorflow (python)
 - matplotlib.pyplot (python)
+
+
+## Update - 02/04/2022
+We have changed instructions to compile and run our examples by automating some of the environment variable declarations. We have also added an example of calling Python from a turbulence model implementation. 
 
 
 ## Contents
