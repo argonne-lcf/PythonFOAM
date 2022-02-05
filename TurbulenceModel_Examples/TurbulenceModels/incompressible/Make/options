@@ -1,0 +1,15 @@
+EXE_INC = \
+    -I../momentumTransportModels/lnInclude \
+    -I$(LIB_SRC)/transportModels/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(PYTHON_INCLUDE_PATH) \
+    -I$(NUMPY_INCLUDE_PATH)
+
+LIB_LIBS = \
+    -L$(PYTHON_LIB_PATH) \
+    -lincompressibleTransportModels \
+    -lmomentumTransportModels \
+    -lfiniteVolume \
+    -lmeshTools \
+    -$(PYTHON_LIB_NAME)
