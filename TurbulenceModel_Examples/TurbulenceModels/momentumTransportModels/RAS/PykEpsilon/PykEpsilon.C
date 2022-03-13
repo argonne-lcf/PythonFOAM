@@ -193,18 +193,16 @@ PykEpsilon<BasicMomentumTransportModel>::PykEpsilon
     PyRun_SimpleString("sys.path.append(\".\")");
 
     // initialize numpy array library
-    init_numpy();
+    // init_numpy();
+    import_array1();
 
     pName = PyUnicode_DecodeFSDefault("python_module"); // Python filename
 
     pModule = PyImport_Import(pName);
     // Py_DECREF(pName);
 
-    snapshot_func = PyObject_GetAttrString(pModule, "snapshot_func");
-    snapshot_args = PyTuple_New(2);
-
-    svd_func = PyObject_GetAttrString(pModule, "svd_func");
-    svd_args = PyTuple_New(1);
+    ml_nut = PyObject_GetAttrString(pModule, "ml_nut");
+    ml_nut_args = PyTuple_New(1); // One array sent to Python
 
     // Get process id
     rank = Pstream::myProcNo();
@@ -309,147 +307,75 @@ void PykEpsilon<BasicMomentumTransportModel>::correct()
     fvOptions.correct(k_);
     bound(k_, this->kMin_);
 
-    correctNut();
+    correctNut(); //- to be bypassed by ML
 
+    // Define an array of doubles to pass to python module
+    int num_cells = this->mesh_.cells().size();
+    double input_vals[num_cells][2]; // Send k and epsilon and get nut
 
-    if(this->runTime_.outputTime()) // Perform SVD and write out
+    // volScalarField ux_ = U.component(vector::X);
+
+    // #pragma omp parallel for
+    forAll(k_.internalField(), id) // for boundary field use u_.boundaryField()
     {
-        // To pass rank to Python interpreter
-        rank_val = PyLong_FromLong(rank);
-        PyTuple_SetItem(svd_args, 0, rank_val);
-
-        pValue = (PyArrayObject*)PyObject_CallObject(svd_func, svd_args); //Casting to PyArrayObject
-
-        // Shove return value into OF data structure
-        int num_cells = this->mesh_.cells().size();
-        volScalarField upod_ = U.component(vector::X);
-        volScalarField vpod_ = U.component(vector::Y);
-        volScalarField wpod_ = U.component(vector::Z);
-
-        // forAll (mesh.boundary(), patchI) 
-        // {
-        //     if (mesh.boundary()[patchI].name() == "inlet" || 
-        //         mesh.boundary()[patchI].name() == "outlet" ||
-        //         mesh.boundary()[patchI].name() == "top" || 
-        //         mesh.boundary()[patchI].name() == "right" || 
-        //         mesh.boundary()[patchI].name() == "left") // Now it only searches for a name, maybe the type, e.g. wall or whatever, would be better
-        //         {
-        //             forAll(upod_.boundaryField()[patchI], facei)
-        //             {
-        //                 upod_.boundaryField()[patchI][facei] = 0.0;
-        //                 vpod_.boundaryField()[patchI][facei] = 0.0;
-        //                 wpod_.boundaryField()[patchI][facei] = 0.0;
-        //             }
-        //         }
-        // }
-
-        // ndarray return of POD modes
-        double* c_out = static_cast<double*>(PyArray_DATA(pValue));
-
-        // // Some ordering verification
-        // if (rank == 0)
-        // {
-        //     for (int i = 0; i < 5; i++)
-        //     {
-        //         std::cout<<"From rank 0: C++ cout values: "<<c_out[i]<<std::endl; 
-        //     }    
-        // }
-
-        int shift = 5*num_cells;
-        for (int mode = 0; mode < 5; ++mode)
-        {
-
-            // Overwrite data
-            forAll(upod_.internalField(), id) // for boundary field use u_.boundaryField()
-            {
-                upod_[id] = (*(c_out+5*id+mode));
-                vpod_[id] = (*(c_out+5*id+mode+shift));
-                wpod_[id] = (*(c_out+5*id+mode+2*shift));
-            }
-
-            // // Overwrite data
-            // for (int id = 0; id < num_cells; id++) 
-            // {
-            //     upod_[id] = (*(c_out+5*id+mode));
-            //     vpod_[id] = (*(c_out+5*id+mode+shift));
-            //     wpod_[id] = (*(c_out+5*id+mode+2*shift));
-            // }
-
-            /*
-            // Some ordering verification
-            if (rank == 0 && mode == 2)
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    std::cout<<"From rank 0: C++ Ux mode zero values: "<<upod_[i]<<std::endl; 
-                    std::cout<<"From rank 0: C++ Uy mode zero values: "<<vpod_[i]<<std::endl; 
-                    std::cout<<"From rank 0: C++ Uz mode zero values: "<<wpod_[i]<<std::endl; 
-                }    
-            }
-            */
-
-            // std::cout <<"Data back in OpenFOAM. Now writing." << std::endl;
-
-            // Write out
-            char var_name[20];
-            sprintf(var_name, "upod_%d", mode);
-            upod_.rename(&var_name[0]);
-            upod_.write();
-
-            sprintf(var_name, "vpod_%d", mode);
-            vpod_.rename(&var_name[0]);
-            vpod_.write();
-
-            sprintf(var_name, "wpod_%d", mode);
-            wpod_.rename(&var_name[0]);
-            wpod_.write();
-
-        }
-
-        delete[] c_out;
+        input_vals[id][0] = k_[id];
+        input_vals[id][1] = epsilon_[id];
     }
-    else // Collect data for snapshots
+
+    /* // Some ordering verification
+    if (rank == 0)
     {
-        // Define an array of doubles to pass to python module
-        int num_cells = this->mesh_.cells().size();
-        double input_vals[num_cells][3];
-
-        volScalarField ux_ = U.component(vector::X);
-        volScalarField uy_ = U.component(vector::Y);
-        volScalarField uz_ = U.component(vector::Z);
-
-        // #pragma omp parallel for
-        forAll(ux_.internalField(), id) // for boundary field use u_.boundaryField()
+        for (int i = 0; i < 5; i++)
         {
-            input_vals[id][0] = ux_[id];
-            input_vals[id][1] = uy_[id];
-            input_vals[id][2] = uz_[id];
-        }
-
-        /* // Some ordering verification
-        if (rank == 0)
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                std::cout<<"From rank: "<< rank <<" C++ Ux values: "<<input_vals[i][0]<<std::endl; //should correspond to array[:5,0]
-                std::cout<<"From rank: "<< rank <<" C++ Uy values: "<<input_vals[i][1]<<std::endl; //should correspond to array[:5,1]
-                std::cout<<"From rank: "<< rank <<" C++ Uz values: "<<input_vals[i][2]<<std::endl; //should correspond to array[:5,2]
-            }    
-        }
-        */
-
-        // Numpy array dimensions
-        npy_intp dim[] = {num_cells, 3};
-        // create a new array using 'buffer'
-        array_2d = PyArray_SimpleNewFromData(2, dim, NPY_DOUBLE, &input_vals[0]);
-        PyTuple_SetItem(snapshot_args, 0, array_2d);
-        // To pass rank to Python interpreter
-        rank_val = PyLong_FromLong(rank);
-        PyTuple_SetItem(snapshot_args, 1, rank_val);
-
-        pValue = (PyArrayObject*)PyObject_CallObject(snapshot_func, snapshot_args); //Casting to PyArrayObject
-        // PyArray_ENABLEFLAGS((PyArrayObject*)array_2d, NPY_ARRAY_OWNDATA); // if you were defining a new array_2d with PyObject *array_2d = ..; here    
+            std::cout<<"From rank: "<< rank <<" C++ Ux values: "<<input_vals[i][0]<<std::endl; //should correspond to array[:5,0]
+            std::cout<<"From rank: "<< rank <<" C++ Uy values: "<<input_vals[i][1]<<std::endl; //should correspond to array[:5,1]
+        }    
     }
+    */
+
+    // Numpy array dimensions
+    npy_intp dim[] = {num_cells, 2};
+    // create a new array using 'buffer'
+    array_2d = PyArray_SimpleNewFromData(2, dim, NPY_DOUBLE, &input_vals[0]);
+    PyTuple_SetItem(ml_nut_args, 0, array_2d);
+    // // To pass rank to Python interpreter
+    // rank_val = PyLong_FromLong(rank);
+    // PyTuple_SetItem(ml_nut_args, 1, rank_val);
+
+    pValue = (PyArrayObject*)PyObject_CallObject(ml_nut, ml_nut_args); //Casting to PyArrayObject
+    // PyArray_ENABLEFLAGS((PyArrayObject*)array_2d, NPY_ARRAY_OWNDATA); // if you were defining a new array_2d with PyObject *array_2d = ..; here 
+
+
+    // Overwrite data
+    forAll(k_.internalField(), id) // for boundary field use u_.boundaryField()
+    {
+        double* current = (double*) PyArray_GETPTR2(pValue, id, 0); // row id, column 0
+        this->nut_[id] = (*current);
+        // std::cout<<"nut openfoam "<< this->nut_[id] <<std::endl;
+        // std::cout<<"nut python "<< (*current)<<std::endl;
+    }
+
+    // this->nut_ = Cmu_*sqr(k_)/epsilon_;
+    this->nut_.correctBoundaryConditions();
+    // fv::options::New(this->mesh_).correct(this->nut_);
+
+    // forAll (mesh.boundary(), patchI) 
+    // {
+    //     if (mesh.boundary()[patchI].name() == "inlet" || 
+    //         mesh.boundary()[patchI].name() == "outlet" ||
+    //         mesh.boundary()[patchI].name() == "top" || 
+    //         mesh.boundary()[patchI].name() == "right" || 
+    //         mesh.boundary()[patchI].name() == "left") // Now it only searches for a name, maybe the type, e.g. wall or whatever, would be better
+    //         {
+    //             forAll(upod_.boundaryField()[patchI], facei)
+    //             {
+    //                 upod_.boundaryField()[patchI][facei] = 0.0;
+    //                 vpod_.boundaryField()[patchI][facei] = 0.0;
+    //                 wpod_.boundaryField()[patchI][facei] = 0.0;
+    //             }
+    //         }
+    // }
+
 }
 
 

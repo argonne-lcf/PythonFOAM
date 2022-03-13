@@ -102,6 +102,9 @@ makeRASModel(SSG);
 #include "PykEpsilon.H"
 makeRASModel(PykEpsilon);
 
+#include "ML_One_Equation.H"
+makeRASModel(ML_One_Equation);
+
 // -------------------------------------------------------------------------- //
 // LES models
 // -------------------------------------------------------------------------- //
