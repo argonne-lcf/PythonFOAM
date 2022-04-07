@@ -51,6 +51,7 @@ on a machine with docker in it to download an image that has PythonFOAM set up o
 
 ```
 docker run -t -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --name pythonfoam_container romitmaulik1/pythonfoam_docker
+xhost +local:docker # For running GUI applications from docker
 docker start pythonfoam_container
 docker exec -i -t pythonfoam_container /bin/bash
 ```
