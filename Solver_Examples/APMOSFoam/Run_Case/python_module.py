@@ -38,8 +38,6 @@ def snapshot_func(array,rank):
 
         iter+=1
 
-    return 0
-
 # Method of snapshots to accelerate
 def generate_right_vectors_mos(Y):
     '''
@@ -116,6 +114,9 @@ def apmos_func(placeholder):
 
     print('Shape of things in python ************')
     print(np.mean(phi_list))
+
+    del u_snapshots, v_snapshots, w_snapshots
+    del snapshots_list
 
     u_snapshots = None
     v_snapshots = None

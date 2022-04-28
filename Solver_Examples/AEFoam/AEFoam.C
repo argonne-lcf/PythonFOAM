@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    PODFoam
+    AEFoam
 
 Description
     Transient solver for incompressible, turbulent flow of Newtonian fluids,

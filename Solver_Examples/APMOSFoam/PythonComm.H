@@ -11,7 +11,7 @@ if (runTime.outputTime())
 
     // Call APMOS function
     PyTuple_SetItem(apmos_args, 0, rank_val);
-    PyArrayObject *pValue = reinterpret_cast<PyArrayObject*>
+    pValue = reinterpret_cast<PyArrayObject*>
     (
         PyObject_CallObject(apmos_func, apmos_args)
     );
@@ -88,9 +88,17 @@ else
 
     clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
+    // Usage
+    getrusage(0,&usage_info);
+    std::cout << "Resource usage line 99:" << usage_info.ru_maxrss << std::endl;
+
     PyTuple_SetItem(snapshot_args, 0, array_2d);
     PyTuple_SetItem(snapshot_args, 1, rank_val);
     (void) PyObject_CallObject(snapshot_func, snapshot_args);
+
+    // Usage
+    getrusage(0,&usage_info);
+    std::cout << "Resource usage line 107:" << usage_info.ru_maxrss << std::endl;
 
     clock_gettime(CLOCK_MONOTONIC, &tw2); // POSIX
     posix_wall = 1000.0*tw2.tv_sec + 1e-6*tw2.tv_nsec - (1000.0*tw1.tv_sec + 1e-6*tw1.tv_nsec);
