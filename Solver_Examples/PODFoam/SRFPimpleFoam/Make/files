@@ -1,3 +1,0 @@
-SRFPimpleFoam.C
-
-EXE = $(FOAM_MODULE_APPBIN)/SRFPimpleFoam

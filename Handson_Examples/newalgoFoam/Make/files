@@ -1,0 +1,3 @@
+newalgoFoam.C
+
+EXE = $(FOAM_APPBIN)/newalgoFoam

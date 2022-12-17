@@ -1,7 +1,5 @@
-cd ../../
-source prep_env.sh
+cd ../../TurbulenceModel_Examples/TurbulenceModels/momentumTransportModels
 
-cd TurbulenceModel_Examples/TurbulenceModels/momentumTransportModels
 wclean
 wmake
 

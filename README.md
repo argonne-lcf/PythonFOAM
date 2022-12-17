@@ -74,7 +74,20 @@ Use the files in `PODFoam_Debug/.vscode` in this repository to add file contents
 
 ### Note - The docker container is outdated and refers to an older commit (1686978d8b50e1f7b44fe7a710e8cdae85cae56d). We are working to update the contents of the Docker container with the latest updates. Stay tuned.
 
-A Docker container with the contents of this repo is available [here](https://hub.docker.com/repository/docker/romitmaulik1/pythonfoam_docker). You can use `docker pull romitmaulik1/pythonfoam_docker:reproduced` on a machine with docker in it, or `singularity build pythonfoam.img docker://romitmaulik1/pythonfoam_docker:reproduced`. Do not forget to ensure OpenFOAM is sourced and available in your path by using `source /opt/openfoam8/etc/bashrc`. For a quick crash course on using Docker, see this tutorial by [Jean Rabault](https://github.com/jerabaul29/Cylinder2DFlowControlDRLParallel/blob/master/Docker/README_container.md). Singularity resources may be found [here](https://github.com/argonne-lcf/CompPerfWorkshop-2021/blob/main/03_containers/ALCF_Containers.pdf).
+A Docker container with the contents of this repo is available [here](https://hub.docker.com/repository/docker/romitmaulik1/pythonfoam_docker). You can use 
+
+```docker pull romitmaulik1/pythonfoam_docker:latest``` 
+
+on a machine with docker in it to download an image that has PythonFOAM set up on it. Subsequently
+
+```
+docker run -t -d -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --privileged --name pythonfoam_container romitmaulik1/pythonfoam_docker
+xhost +local:docker # For running GUI applications from docker
+docker start pythonfoam_container
+docker exec -i -t pythonfoam_container /bin/bash
+```
+
+will create a container (named `pythonfoam_container`) from the image and start a shell for you to run experiments. Navigate to `/home/PythonFOAM` within the shell to obtain the source code and test cases. For a quick crash course on using Docker, see this tutorial by [Jean Rabault](https://github.com/jerabaul29/Cylinder2DFlowControlDRLParallel/blob/master/Docker/README_container.md). 
 
 Points of contact for further assistance - Romit Maulik (rmaulik@anl.gov). This work was performed by using the resources of the Argonne Leadership Computing Facility, a U.S. Department of Energy (Office of Science) user facility at Argonne National Laboratory, Lemont, IL, USA. 
 
