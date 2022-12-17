@@ -1,4 +1,4 @@
-cd ../../TurbulenceModel_Examples/TurbulenceModels/momentumTransportModels
+cd ./momentumTransportModels
 
 wclean
 wmake

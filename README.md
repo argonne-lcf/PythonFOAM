@@ -12,7 +12,7 @@ OpenFOAM versions that should compile without changes:
 
 - OpenFOAM
 - numpy (python) with devel headers
-- tensorflow (python)
+- tensorflow (python) ### Version 2.1
 - matplotlib (python)
 - python-dev-tools (python)
 

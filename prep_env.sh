@@ -5,13 +5,13 @@ if [ "$1" == "-debug" ]; then
 	source ./OF8_debug/OpenFOAM-8/etc/bashrc
 else
 	echo "Using OpenFOAM in Optimized mode"
-	source ./OF8_opt/OpenFOAM-8/etc/bashrc
+	source /opt/openfoam8/etc/bashrc
 fi
 
-export PYTHON_LIB_PATH=/home/rmlans/Desktop/ROMS/PythonFOAM/ofenv/lib
-export PYTHON_BIN_PATH=/home/rmlans/Desktop/ROMS/PythonFOAM/ofenv/bin
-export PYTHON_INCLUDE_PATH=/home/rmlans/Desktop/ROMS/PythonFOAM/ofenv/include/python3.6m
-export NUMPY_INCLUDE_PATH=/home/rmlans/Desktop/ROMS/PythonFOAM/ofenv/lib/python3.6/site-packages/numpy/core/include
+export PYTHON_LIB_PATH=/home/rmlans/Desktop/Research/PythonFOAM_Git/ofenv/lib
+export PYTHON_BIN_PATH=/home/rmlans/Desktop/Research/PythonFOAM_Git/ofenv/bin
+export PYTHON_INCLUDE_PATH=/home/rmlans/Desktop/Research/PythonFOAM_Git/ofenv/include/python3.6m
+export NUMPY_INCLUDE_PATH=/home/rmlans/Desktop/Research/PythonFOAM_Git/ofenv/lib/python3.6/site-packages/numpy/core/include
 export PYTHON_LIB_NAME=lpython3.6m
 
 
