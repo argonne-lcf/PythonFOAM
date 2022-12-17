@@ -1,4 +1,13 @@
-source /opt/openfoam8/etc/bashrc
+echo "Make sure your paths to OpenFOAM/Python headers/libraries are set appropriately"
+if [ "$1" == "-debug" ]; then
+	echo ""
+	echo "Using OpenFOAM in Debug mode"
+	source ./OF8_debug/OpenFOAM-8/etc/bashrc
+else
+	echo "Using OpenFOAM in Optimized mode"
+	source ./OF8_opt/OpenFOAM-8/etc/bashrc
+fi
+
 export PYTHON_LIB_PATH=/home/rmlans/Desktop/ROMS/PythonFOAM/ofenv/lib
 export PYTHON_BIN_PATH=/home/rmlans/Desktop/ROMS/PythonFOAM/ofenv/bin
 export PYTHON_INCLUDE_PATH=/home/rmlans/Desktop/ROMS/PythonFOAM/ofenv/include/python3.6m
