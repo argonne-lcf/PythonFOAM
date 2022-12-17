@@ -1,0 +1,69 @@
+sinclude $(GENERAL_RULES)/module-path-user
+
+/* Failsafe - user location */
+ifeq (,$(strip $(FOAM_MODULE_APPBIN)))
+    FOAM_MODULE_APPBIN = $(FOAM_USER_APPBIN)
+endif
+ifeq (,$(strip $(FOAM_MODULE_LIBBIN)))
+    FOAM_MODULE_LIBBIN = $(FOAM_USER_LIBBIN)
+endif
+
+/* Python */
+PY_INCS := \
+    -Wno-old-style-cast \
+    -I$(PYTHON_INCLUDE_PATH) \
+    -I$(NUMPY_INCLUDE_PATH) \
+    -L$(PYTHON_LIB_PATH)
+
+PY_LIBS := \
+    -$(PYTHON_LIB_NAME)
+
+
+#ifdef OPENFOAM
+/* openfoam.com */
+
+TRANSPORT_INCS := \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
+    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+    -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude
+
+TRANSPORT_LIBS := \
+    -lincompressibleTransportModels \
+    -lturbulenceModels \
+    -lincompressibleTransportModels
+
+#else
+/* openfoam.org */
+
+TRANSPORT_INCS := \
+    -I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/transportModels/lnInclude
+
+TRANSPORT_LIBS := \
+    -lmomentumTransportModels \
+    -lincompressibleMomentumTransportModels \
+    -lincompressibleTransportModels
+
+#endif
+
+EXE_INC = \
+    $(TRANSPORT_INCS) \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(LIB_SRC)/dynamicFvMesh/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    $(PY_INCS)
+
+EXE_LIBS = \
+    $(TRANSPORT_LIBS) \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lsampling \
+    -ldynamicFvMesh \
+    -ltopoChangerFvMesh \
+    -ldynamicMesh \
+    -lmeshTools \
+    $(PY_LIBS)

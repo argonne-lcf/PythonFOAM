@@ -1,0 +1,7 @@
+{
+    "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "files.associations": {
+        "PODFoam.C": "cpp",
+        "PODFoam_Debug.C": "cpp"
+    }
+}

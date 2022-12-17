@@ -8,18 +8,13 @@ OpenFOAM versions that should compile without changes:
 - openfoam.com versions: v2012, v2106
 - openfoam.org versions: 8
 
-
 ## Prerequisites
 
 - OpenFOAM
 - numpy (python) with devel headers
 - tensorflow (python)
-- matplotlib.pyplot (python)
-
-
-## Update - 02/04/2022
-We have changed instructions to compile and run our examples by automating some of the environment variable declarations. We have also added an example of calling Python from a turbulence model implementation. 
-
+- matplotlib (python)
+- python-dev-tools (python)
 
 ## Contents
 1. `Solver_Examples/`
@@ -40,10 +35,44 @@ Inspect `prep_env.sh` to set paths to various Python, numpy headers and librarie
 
 2. Turbulence model examples: See `README.md` in `Turbulence_Model_Examples/`.
 
+## Update - 12/16/2022
+
+You can now debug the C++ components of PythonFOAM with visual studio code. For this you need to have OpenFOAM-8 built in debug mode. Here is a quick tutorial to do so:
+
+1. Download OpenFOAM-8 source
+```
+git clone https://github.com/OpenFOAM/OpenFOAM-8.git
+git clone https://github.com/OpenFOAM/ThirdParty-8.git
+```
+Go to line 84 in `OpenFOAM-8/etc/bashrc` and 
+```
+export WM_COMPILE_OPTION=Debug
+```
+then go to `ThirdParty-8/` and use `./Allwmake`. After - go to `OpenFOAM-8/` and use `./Allwmake -j`. (Note we are skipping Paraview compilation). We recommend keeping one build of debug OpenFOAM and one build of optimized OpenFOAM on your system at all times.
+
+2. Download Visual studio and make sure your visual studio has C/C++ (intellisense and extension pack) extensions. 
+
+3. Navigate to your solver build directory - here let us use `PODFoam_Debug/` as an example. This folder has the files and `wmake` instructions to build `PODFoam_Debug` - you will note that the folder also shares the directories required to run a CFD case (i.e., the contents of `run_case/` are in the same build directory). This is required for debug mode execution of our solver. 
+
+4. Create a new hidden folder in the `PODFoam_Debug` directory called `.vscode/`. In it create 4 files
+```
+launch.json
+c_cpp_properties.json
+tasks.json
+settings.json
+```
+Use the files in `PODFoam_Debug/.vscode` in this repository to add file contents (further information here: https://github.com/Rvadrabade/Debugging-OpenFOAM-with-Visual-Studio-Code/).
+
+5. In a new terminal - `source prep_env.sh -debug` to ensure that you are running with the debug version of OpenFOAM. Note that here you have to make sure you are pointing to your correct bashrc. The links in this example are for my personal machine. Follow previous steps to compile a debug version of `PODFoam_Debug` from `PODFoam_Debug/`. There should be no issues here.
+
+6. Navigate to `PODFoam_Debug/` and run visual studio code with `code .`. Set a breakpoint in `PODFoam_Debug.C` and hit F5 in the debug panel to initialize debugging. Standard gdb rules apply hereon.
+
+### Note we are still investigating mixed-mode debugging for C++ and Python.
+
 
 ## Docker
 
-### Note - The docker container is outdated and refers to an older commit (1686978d8b50e1f7b44fe7a710e8cdae85cae56d)
+### Note - The docker container is outdated and refers to an older commit (1686978d8b50e1f7b44fe7a710e8cdae85cae56d). We are working to update the contents of the Docker container with the latest updates. Stay tuned.
 
 A Docker container with the contents of this repo is available [here](https://hub.docker.com/repository/docker/romitmaulik1/pythonfoam_docker). You can use `docker pull romitmaulik1/pythonfoam_docker:reproduced` on a machine with docker in it, or `singularity build pythonfoam.img docker://romitmaulik1/pythonfoam_docker:reproduced`. Do not forget to ensure OpenFOAM is sourced and available in your path by using `source /opt/openfoam8/etc/bashrc`. For a quick crash course on using Docker, see this tutorial by [Jean Rabault](https://github.com/jerabaul29/Cylinder2DFlowControlDRLParallel/blob/master/Docker/README_container.md). Singularity resources may be found [here](https://github.com/argonne-lcf/CompPerfWorkshop-2021/blob/main/03_containers/ALCF_Containers.pdf).
 

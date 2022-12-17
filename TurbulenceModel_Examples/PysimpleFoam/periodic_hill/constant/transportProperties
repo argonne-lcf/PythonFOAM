@@ -1,0 +1,28 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+Ubar            Ubar [0 1 -1 0 0 0 0] (0.020188 0 0); // Ubar is the volume averaged velocity. To convert to the bulk velocity at the inlet patch divide Ubar by 0.7210  Ubar should then be 0.020188
+
+Retau           Retau [0 0 0 0 0 0 0]   500;
+
+transportModel  Newtonian;
+
+//nu              nu [ 0 2 -1 0 0 0 0 ] 2.642756e-06;
+nu              nu [ 0 2 -1 0 0 0 0 ] 5e-06;
+
+
+// ************************************************************************* //

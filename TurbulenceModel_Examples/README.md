@@ -15,7 +15,7 @@ https://github.com/pybind/pybind11/issues/1889#issuecomment-1029909985
 
 5. Using your new turbulence model from a pre-existing solver (say simpleFOAM) may cause segfault/floating point errors due to numpy incompatibility. For this reason, we need to make a duplicate solver that has a workaround for this. An example of this solver is provided in `PysimpleFoam` where we have simply copied simpleFoam, changed its name, added the lines 44-49 in `PysimpleFoam.c` and changed the executable/file name in `PysimpleFoam/Make/files`. You can compile this solver from `PysimpleFoam/` using `wclean && wmake`.
 
-6. To test if our onlineSVD from `PykEpsilon` works appropriately go to the `PysimpleFoam/PitzDaily` case and execute it using `PysimpleFoam`. You will note that the `constant/momentumTransport` file has our new model mentioned there and the `system/controlDict` file has our new (duplicate) solver. 
+6. To test if our `PykEpsilon` model works appropriately go to the `PysimpleFoam/PitzDaily` case and execute it using `PysimpleFoam`. You will note that the `constant/momentumTransport` file has our new model mentioned there and the `system/controlDict` file has our new (duplicate) solver. 
 
 
 Follow the steps carefully and you will have your Python-OpenFOAM coupling from a turbulence model ---- Great for data-driven turbulence modeling! Reach out to me for more questions. 
