@@ -72,8 +72,6 @@ Use the files in `PODFoam_Debug/.vscode` in this repository to add file contents
 
 ## Docker
 
-### Note - The docker container is outdated and refers to an older commit (1686978d8b50e1f7b44fe7a710e8cdae85cae56d). We are working to update the contents of the Docker container with the latest updates. Stay tuned.
-
 A Docker container with the contents of this repo is available [here](https://hub.docker.com/repository/docker/romitmaulik1/pythonfoam_docker). You can use 
 
 ```docker pull romitmaulik1/pythonfoam_docker:latest``` 
