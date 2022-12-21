@@ -48,7 +48,7 @@ Go to line 84 in `OpenFOAM-8/etc/bashrc` and
 ```
 export WM_COMPILE_OPTION=Debug
 ```
-then go to `ThirdParty-8/` and use `./Allwmake`. After - go to `OpenFOAM-8/` and use `./Allwmake -j`. (Note we are skipping Paraview compilation). We recommend keeping one build of debug OpenFOAM and one build of optimized OpenFOAM on your system at all times.
+then use `source OpenFOAM-8/etc/bashrc` to load environment variables. After this step, go to `ThirdParty-8/` and use `./Allwmake`. After - go to `OpenFOAM-8/` and use `./Allwmake -j`. (Note we are skipping Paraview compilation). We recommend keeping one build of debug OpenFOAM and one build of optimized OpenFOAM on your system at all times.
 
 2. Download Visual studio and make sure your visual studio has C/C++ (intellisense and extension pack) extensions. 
 
