@@ -57,7 +57,8 @@ volScalarField vpod_(U.component(vector::Y));
 volScalarField wpod_(U.component(vector::Z));
 
 // To pass rank to Python interpreter
-PyObject *rank_val = PyLong_FromLong(Pstream::myProcNo());
+int rank = Pstream::myProcNo();
+PyObject *rank_val = PyLong_FromLong(rank);
 PyObject *array_2d(nullptr);
 
 ///int encode_mode = 0;
@@ -67,6 +68,6 @@ int truncation = 5;
 
 // Placeholder to grab data before sending to Python
 int num_cells = mesh.cells().size();
-double input_vals[num_cells][3];
+auto input_vals = new double[num_cells][3];
 
 // ************************************************************************* //

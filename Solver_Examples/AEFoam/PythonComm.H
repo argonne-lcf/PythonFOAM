@@ -25,6 +25,7 @@ if (runTime.outputTime())
         clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
         // Call autoencoder
+        rank_val = PyLong_FromLong(rank);
         PyTuple_SetItem(autoencoder_args, 0, rank_val);
         (void) PyObject_CallObject(autoencoder_func, autoencoder_args);
 
@@ -59,6 +60,7 @@ else
         clock_gettime(CLOCK_MONOTONIC, &tw1); // POSIX
 
         // Call encode
+        rank_val = PyLong_FromLong(rank);
         PyTuple_SetItem(encode_args, 0, array_2d);
         PyTuple_SetItem(encode_args, 1, rank_val);
         PyArrayObject *pValue = reinterpret_cast<PyArrayObject*>
