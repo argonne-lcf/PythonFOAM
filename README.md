@@ -87,7 +87,7 @@ docker exec -i -t pythonfoam_container /bin/bash
 
 will create a container (named `pythonfoam_container`) from the image and start a shell for you to run experiments. Navigate to `/home/PythonFOAM` within the shell to obtain the source code and test cases. For a quick crash course on using Docker, see this tutorial by [Jean Rabault](https://github.com/jerabaul29/Cylinder2DFlowControlDRLParallel/blob/master/Docker/README_container.md). 
 
-Points of contact for further assistance - Romit Maulik (rmaulik@anl.gov). This work was performed by using the resources of the Argonne Leadership Computing Facility, a U.S. Department of Energy (Office of Science) user facility at Argonne National Laboratory, Lemont, IL, USA. 
+Points of contact for further assistance - Romit Maulik (rmaulik@anl.gov). This work was performed by using the resources of the Argonne Leadership Computing Facility, a U.S. Department of Energy (Office of Science) user facility at Argonne National Laboratory, Lemont, IL, USA. Several aspects of this research were also performed at the Department of Computer Science at IIT-Chicago ([SPEAR Team](http://www.cs.iit.edu/~lan/SPEAR-Team.html), PI Zhiling Lan)
 
 ## LICENSE
 
