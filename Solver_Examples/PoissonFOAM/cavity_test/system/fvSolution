@@ -1,0 +1,87 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "(T|T1|T2|T3|T4)" 
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+    };
+
+    "(p|p1|p2|p3|p4)"
+    {
+        solver          GAMG;
+        tolerance       1e-6;
+       // relTol          0.1;
+        smoother        GaussSeidel;
+    }
+
+        "(U|U1|U2|U3|U4|k|epsilon|omega|f|v2)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+      //  relTol          0.1;
+    }
+
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    consistent      yes;
+  //  "(pRefCell|p1RefCell| p2RefCell|p3RefCell|p4RefCell)"       0;
+   // (pRefValue|p1RefValue| p2RefValue| p3RefValue| p4RefValue)   0;
+    pRefCell          0;
+    pRefValue          0;
+    p1RefCell        0;
+    p1RefValue       0;
+    p2RefCell        0;
+    p2RefValue       0;
+    p3RefCell        0;
+    p3RefValue       0;
+    p4RefCell        0;
+    p4RefValue       0;
+
+
+    residualControl
+    {
+        "(p|p1|p2|p3|p4)"              1e-3;
+         "(U|U1|U2|U3|U4|k|epsilon|omega|f|v2)"                1e-3;
+         "(T|T1|T2|T3|T4)"              1e-3;
+
+        //"(k|epsilon|omega|f|v2)" 1e-3;
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        "(p|p1|p2|p3|p4)"               1; // 0.9 is more stable but 0.95 more convergent
+ 
+        "(U|U1|U2|U3|U4|k|epsilon|omega|f|v2)"             .95;
+        "(T|T1|T2|T3|T4)"                                  0.1;
+         md             1;
+       // ".*"            0.5; // 0.9 is more stable but 0.95 more convergent
+    }
+}
+
+
+// ************************************************************************* //
