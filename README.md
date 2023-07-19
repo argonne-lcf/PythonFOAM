@@ -8,6 +8,8 @@ OpenFOAM versions that should compile without changes:
 - openfoam.com versions: v2012, v2106
 - openfoam.org versions: 8
 
+You can find an extensive hands-on tutorial, courtesy of the ALCF PythonFOAM workshop, here: https://www.youtube.com/watch?v=-Sa2OEssru8
+
 ## Prerequisites
 
 - OpenFOAM
