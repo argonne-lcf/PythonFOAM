@@ -1,1 +1,1 @@
-../MomentumTransportModel/MomentumTransportModel.C
+../momentumTransportModel.C

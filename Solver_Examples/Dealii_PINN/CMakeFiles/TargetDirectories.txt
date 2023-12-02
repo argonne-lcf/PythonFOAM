@@ -1,0 +1,10 @@
+/home/sumedhssoman/step-4/CMakeFiles/rebuild_cache.dir
+/home/sumedhssoman/step-4/CMakeFiles/info.dir
+/home/sumedhssoman/step-4/CMakeFiles/edit_cache.dir
+/home/sumedhssoman/step-4/CMakeFiles/strip_comments.dir
+/home/sumedhssoman/step-4/CMakeFiles/distclean.dir
+/home/sumedhssoman/step-4/CMakeFiles/runclean.dir
+/home/sumedhssoman/step-4/CMakeFiles/release.dir
+/home/sumedhssoman/step-4/CMakeFiles/debug.dir
+/home/sumedhssoman/step-4/CMakeFiles/run.dir
+/home/sumedhssoman/step-4/CMakeFiles/step-4.dir

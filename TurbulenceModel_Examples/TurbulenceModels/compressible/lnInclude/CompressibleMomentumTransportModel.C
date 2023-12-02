@@ -23,72 +23,51 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CompressibleMomentumTransportModel.H"
+#include "compressibleMomentumTransportModel.H"
+#include "surfaceInterpolate.H"
+#include "surfaceFields.H"
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    defineTypeNameAndDebug(compressibleMomentumTransportModel, 0);
+}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-template<class TransportModel>
-Foam::CompressibleMomentumTransportModel<TransportModel>::
-CompressibleMomentumTransportModel
+Foam::compressibleMomentumTransportModel::compressibleMomentumTransportModel
 (
-    const word& type,
-    const geometricOneField& alpha,
     const volScalarField& rho,
     const volVectorField& U,
     const surfaceScalarField& alphaRhoPhi,
-    const surfaceScalarField& phi,
-    const transportModel& transport
+    const surfaceScalarField& phi
 )
 :
-    MomentumTransportModel
-    <
-        geometricOneField,
-        volScalarField,
-        compressibleMomentumTransportModel,
-        transportModel
-    >
+    momentumTransportModel
     (
-        alpha,
-        rho,
         U,
         alphaRhoPhi,
-        phi,
-        transport
-    )
+        phi
+    ),
+    rho_(rho)
 {}
 
 
-// * * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template<class TransportModel>
-Foam::autoPtr<Foam::CompressibleMomentumTransportModel<TransportModel>>
-Foam::CompressibleMomentumTransportModel<TransportModel>::New
-(
-    const volScalarField& rho,
-    const volVectorField& U,
-    const surfaceScalarField& phi,
-    const transportModel& transport
-)
+Foam::tmp<Foam::surfaceScalarField>
+Foam::compressibleMomentumTransportModel::phi() const
 {
-    return autoPtr<CompressibleMomentumTransportModel>
-    (
-        static_cast<CompressibleMomentumTransportModel*>(
-        MomentumTransportModel
-        <
-            geometricOneField,
-            volScalarField,
-            compressibleMomentumTransportModel,
-            transportModel
-        >::New
-        (
-            geometricOneField(),
-            rho,
-            U,
-            phi,
-            phi,
-            transport
-        ).ptr())
-    );
+    if (phi_.dimensions() == dimensionSet(0, 3, -1, 0, 0))
+    {
+        return phi_;
+    }
+    else
+    {
+        return phi_/fvc::interpolate(rho_);
+    }
 }
 
 

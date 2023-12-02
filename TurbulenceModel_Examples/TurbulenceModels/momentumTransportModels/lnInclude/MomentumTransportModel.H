@@ -1,1 +1,1 @@
-../MomentumTransportModel/MomentumTransportModel.H
+../momentumTransportModel.H
