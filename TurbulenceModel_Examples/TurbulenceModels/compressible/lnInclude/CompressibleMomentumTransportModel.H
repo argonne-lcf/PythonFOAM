@@ -22,151 +22,117 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::CompressibleMomentumTransportModel
+    Foam::compressibleMomentumTransportModel
 
 Description
-    Templated abstract base class for single-phase compressible
-    turbulence models.
+    Abstract base class for turbulence models (RAS, LES and laminar).
 
 SourceFiles
-    CompressibleMomentumTransportModel.C
+    compressibleMomentumTransportModel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CompressibleMomentumTransportModel_H
-#define CompressibleMomentumTransportModel_H
+#ifndef compressibleMomentumTransportModel_H
+#define compressibleMomentumTransportModel_H
 
-#include "MomentumTransportModel.H"
-#include "compressibleMomentumTransportModel.H"
+#include "momentumTransportModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+// Forward declarations
+class fvMesh;
+
+// Transport properties traits class to provide the thermo model
+template<class TransportType>
+class TransportTraits
+{
+public:
+
+    typedef TransportType thermoModel;
+
+    static const thermoModel& thermo(const TransportType& tt)
+    {
+        return tt;
+    }
+};
+
+
 /*---------------------------------------------------------------------------*\
-              Class CompressibleMomentumTransportModel Declaration
+             Class compressibleMomentumTransportModel Declaration
 \*---------------------------------------------------------------------------*/
 
-template<class TransportModel>
-class CompressibleMomentumTransportModel
+class compressibleMomentumTransportModel
 :
-    public MomentumTransportModel
-    <
-        geometricOneField,
-        volScalarField,
-        compressibleMomentumTransportModel,
-        TransportModel
-    >
+    public momentumTransportModel
 {
+
+protected:
+
+    // Protected data
+
+        const volScalarField& rho_;
+
 
 public:
 
-    typedef geometricOneField alphaField;
-    typedef volScalarField rhoField;
-    typedef TransportModel transportModel;
-    typedef typename TransportTraits<transportModel>::thermoModel thermoModel;
+    //- Runtime type information
+    TypeName(momentumTransportModel::typeName_());
 
 
     // Constructors
 
-        //- Construct
-        CompressibleMomentumTransportModel
+        //- Construct from components
+        compressibleMomentumTransportModel
         (
-            const word& type,
-            const geometricOneField& alpha,
             const volScalarField& rho,
             const volVectorField& U,
             const surfaceScalarField& alphaRhoPhi,
-            const surfaceScalarField& phi,
-            const transportModel& transport
+            const surfaceScalarField& phi
         );
 
-
-    // Selectors
-
-        //- Return a reference to the selected turbulence model
-        static autoPtr<CompressibleMomentumTransportModel> New
+        //- Disallow default bitwise copy construction
+        compressibleMomentumTransportModel
         (
-            const volScalarField& rho,
-            const volVectorField& U,
-            const surfaceScalarField& phi,
-            const transportModel& transportModel
-        );
+            const compressibleMomentumTransportModel&
+        ) = delete;
 
 
     //- Destructor
-    virtual ~CompressibleMomentumTransportModel()
+    virtual ~compressibleMomentumTransportModel()
     {}
 
 
     // Member Functions
 
-        //- Access function to incompressible transport model
-        virtual const thermoModel& thermo() const
+        //- Return the density field
+        const volScalarField& rho() const
         {
-            return TransportTraits<TransportModel>::thermo(this->transport_);
+            return rho_;
         }
 
-        //- Return the laminar dynamic viscosity
-        virtual tmp<volScalarField> mu() const
-        {
-            return thermo().mu();
-        }
+        //- Return the volumetric flux field
+        virtual tmp<surfaceScalarField> phi() const;
 
-        //- Return the laminar dynamic viscosity on patch
-        virtual tmp<scalarField> mu(const label patchi) const
-        {
-            return thermo().mu(patchi);
-        }
+        //- Return the effective stress tensor including the laminar stress
+        virtual tmp<volSymmTensorField> devTau() const = 0;
 
-        //- Return the laminar viscosity
-        virtual tmp<volScalarField> nu() const
-        {
-            return thermo().mu()/this->rho_;
-        }
+        //- Return the source term for the momentum equation
+        virtual tmp<fvVectorMatrix> divDevTau(volVectorField& U) const = 0;
 
-        //- Return the laminar viscosity on patchi
-        virtual tmp<scalarField> nu(const label patchi) const
-        {
-            return thermo().mu(patchi)/this->rho_.boundaryField()[patchi];
-        }
 
-        //- Return the turbulence dynamic viscosity
-        virtual tmp<volScalarField> mut() const
-        {
-            return this->rho_*this->nut();
-        }
+    // Member Operators
 
-        //- Return the turbulence dynamic viscosity on patch
-        virtual tmp<scalarField> mut(const label patchi) const
-        {
-            return this->rho_.boundaryField()[patchi]*this->nut(patchi);
-        }
-
-        //- Return the effective dynamic viscosity
-        virtual tmp<volScalarField> muEff() const
-        {
-            return mut() + mu();
-        }
-
-        //- Return the effective dynamic viscosity on patch
-        virtual tmp<scalarField> muEff(const label patchi) const
-        {
-            return mut(patchi) + mu(patchi);
-        }
+        //- Disallow default bitwise assignment
+        void operator=(const compressibleMomentumTransportModel&) = delete;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#ifdef NoRepository
-    #include "CompressibleMomentumTransportModel.C"
-#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

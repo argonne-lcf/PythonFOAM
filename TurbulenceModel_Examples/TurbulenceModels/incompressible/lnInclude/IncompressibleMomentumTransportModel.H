@@ -1,1 +1,1 @@
-../IncompressibleMomentumTransportModel/IncompressibleMomentumTransportModel.H
+../incompressibleMomentumTransportModel.H

@@ -1,0 +1,12 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I/usr/include/python3.8 \
+    -I/home/sumedhssoman/.local/lib/python3.8/site-packages/numpy/core/include/ \
+
+EXE_LIBS = \
+    -L/usr/lib/x86_64-linux-gnu \
+    -lfiniteVolume \
+    -lfvOptions \
+    -lmeshTools \
+    -lpython3.8
