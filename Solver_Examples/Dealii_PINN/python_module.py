@@ -99,13 +99,14 @@ def train(X,y,z):
 
     loss = loss.item()
     print(f"loss: {loss:>7f}")
+    return loss, pred
 
               
 def run_training(output,coords,bdofs):        
  print('Training function starts here')
  
- data = np.zeros((81,1))
- data2 = np.zeros((81,2))
+ data = np.zeros((4225,1))
+ data2 = np.zeros((4225,2))
  data3 = np.zeros((np.shape(bdofs)[0]),dtype=int)
  data[:,0] = output
  data2[:,:] = coords
@@ -117,12 +118,34 @@ def run_training(output,coords,bdofs):
  z = torch.tensor(data4,requires_grad=True)
  #z = torch.tensor(data3)
  
- epochs = 500
+ epochs = 100
  for t in range(epochs):
       print(f"Epoch {t+1}\n-------------------------------")
-      train_losses = train(X,y,z)     
+      train_losses, pred = train(X,y,z)     
  
-    
+ #model2 = NeuralNetwork().to(device)
+ #model2.eval()
+ #with torch.no_grad():
+ #     pred = model2(y)
+ pred = pred.cpu().detach().numpy()
+ xv = np.reshape(data2[:,0], (65,65))
+ yv = np.reshape(data2[:,1], (65,65))
+
+ #xv,yv = np.meshgrid(xcoords,ycoords)
+ zvals_PINN = np.reshape(pred,(np.shape(xv)[0],np.shape(xv)[1]))
+ zvals_FEM = np.reshape(data,(65,65))
+ 
+ print(zvals_FEM)
+ print(data2)
+ fig, (ax1, ax2) = plt.subplots(1, 2)
+ fig.suptitle('PINN solution (left) vs FEM solution (right)')
+ ax1.contourf(xv,yv,zvals_PINN, 200, cmap=plt.cm.viridis)
+ ax2.contourf(xv,yv,zvals_FEM, 200, cmap=plt.cm.viridis)
+ fig.savefig('PINN_Output.png')
+ 
+ 
+
+
  print("Training Completed")
  torch.save(model, "model4.pth")
  print("Saved PyTorch Model State to model4.pth")

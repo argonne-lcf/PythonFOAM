@@ -76,6 +76,8 @@ private:
 
   Vector<double> solution;
   Vector<double> system_rhs;
+  Vector<double> coordinatex;
+  Vector<double> coordinatey;
 };
 
 
@@ -107,7 +109,7 @@ double RightHandSide<dim>::value(const Point<dim> &p,
 {
   double return_value = 0.0;
   for (unsigned int i = 0; i < dim; ++i)
-    return_value += std::pow(p(i), 2.0);
+    return_value += std::pow(p(i), 4.0);
 
   return return_value;
 }
@@ -140,7 +142,7 @@ template <int dim>
 void Step4<dim>::make_grid()
 {
   GridGenerator::hyper_cube(triangulation, -1, 1);
-  triangulation.refine_global(3);
+  triangulation.refine_global(6);
 
   std::cout << "   Number of active cells: " << triangulation.n_active_cells()
             << std::endl
@@ -166,6 +168,8 @@ void Step4<dim>::setup_system()
 
   solution.reinit(dof_handler.n_dofs());
   system_rhs.reinit(dof_handler.n_dofs());
+  coordinatex.reinit(dof_handler.n_dofs());
+  coordinatey.reinit(dof_handler.n_dofs());
 }
 
 
@@ -193,7 +197,7 @@ void Step4<dim>::assemble_system()
   Vector<double>     cell_rhs(dofs_per_cell);
 
   std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-
+  Point<dim> vertex_data;
   // 
   for (const auto &cell : dof_handler.active_cell_iterators())
     {
@@ -229,6 +233,24 @@ void Step4<dim>::assemble_system()
 
           system_rhs(local_dof_indices[i]) += cell_rhs(i);
         }
+        
+      
+      for (auto vertex_index : GeometryInfo<dim>::vertex_indices())
+      {
+           
+           vertex_data = cell->vertex(vertex_index);
+           
+           int val ;
+           val = local_dof_indices[vertex_index];
+          
+           coordinatex[val] = vertex_data[0];
+            
+           coordinatey[val] = vertex_data[1];
+
+
+
+      }
+
     }
 
   // 
@@ -241,6 +263,8 @@ void Step4<dim>::assemble_system()
                                      system_matrix,
                                      solution,
                                      system_rhs);
+
+ 
 }
 
 
@@ -284,17 +308,28 @@ void Step4<dim>::output_results() const
     coords[l][0] = 0;
     coords[l][1] = 0;
   }
-   
-
+  
+  
   for (int ind = 0; ind < dof_handler.n_dofs(); ind++)
   {
-    std::vector<Point<dim>> vertex_data;
-    vertex_data = triangulation.get_vertices();
+     
     
-    coords[ind][0] = vertex_data[ind][0];
-    coords[ind][1] = vertex_data[ind][1];
+     coords[ind][0] = coordinatex[ind];
+     coords[ind][1] = coordinatey[ind];
       
   }
+
+  // Loop to transfer coordinates as per global DoF numbering-
+  
+  
+
+
+
+
+
+
+
+
 
   const IndexSet boundary_dofs = DoFTools::extract_boundary_dofs(dof_handler);
   std::vector<IndexSet::size_type> BDoFs;
@@ -338,9 +373,9 @@ void Step4<dim>::output_results() const
   pArgs = PyTuple_New(3);
   
   //Numpy array dimensions
-  npy_intp dim1[]  = {81};
-  npy_intp dim2[] = {81,2};
-  npy_intp dim3[] = {32};
+  npy_intp dim1[]  = {4225};
+  npy_intp dim2[] = {4225,2};
+  npy_intp dim3[] = {256};
   
   // create a new array
   
@@ -357,10 +392,10 @@ void Step4<dim>::output_results() const
   pValue = (PyArrayObject*)PyObject_CallObject(pruntrain, pArgs); //Casting to PyArrayObject
   std::cout << "Called python analyses function successfully"<<std::endl;
 
-  Py_DECREF(pArgs);
-  PyArray_ENABLEFLAGS((PyArrayObject*)array_1d, NPY_ARRAY_OWNDATA); // Deallocate array_1d
-  PyArray_ENABLEFLAGS((PyArrayObject*)array_2d, NPY_ARRAY_OWNDATA); 
-  Py_DECREF(pValue);
+  //Py_DECREF(pArgs);
+  //PyArray_ENABLEFLAGS((PyArrayObject*)array_1d, NPY_ARRAY_OWNDATA); // Deallocate array_1d
+  //PyArray_ENABLEFLAGS((PyArrayObject*)array_2d, NPY_ARRAY_OWNDATA); 
+  //Py_DECREF(pValue);
   
 
 
