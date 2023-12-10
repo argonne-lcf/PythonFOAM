@@ -8,7 +8,7 @@ Lines 124-131: Getting face addresses and lower diagonal, upper diagonal and dia
 Lines 137-161: Passing lower diagonal, upper diagonal and diagonal components to simpleMatrix object based on face addressing.\
 Lines 163-176: Adding boundary contributions.\
 Lines 183-192: Passing the created stiffness matrices and forcing vector to C++ array objects, to be converted to NumPy arrays and sent to Python.\
-Lines 199-202: Passing the solution vector to C++ array object, to be converted to NumPy array and sent to Python.\
+Lines 199-202: Passing the solution vector to C++ array object, to be converted to NumPy array and sent to Python.
 
 The residual plot obtained from Python should look similar to this:\
 ![Residual_Plot](https://github.com/SumedhSCU/PythonFOAM/assets/143654947/f0e4269e-4aa8-4614-a900-858695a6262c)
